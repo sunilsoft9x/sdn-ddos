@@ -1,0 +1,168 @@
+# INDICON 2026 — single source of truth. Every script reads from this file.
+# Items marked "design choice" must be labelled as such in Section IV.
+
+meta:
+  paper: "Label-Free Regime Inference for DRL-Based DDoS Mitigation in SDN"
+  seed_namespace: {train: [0, 1, 2, 3, 4], eval_start: 1000}
+
+# --- 4.1 Topology -------------------------------------------------------
+topology:
+  core: s1
+  edges: [s2, s3, s4]
+  hosts_per_edge: 5
+  host_count: 15            # h1..h15
+  victim: {name: h16, ip: "10.0.0.16", attach: s1}
+  subnet: "10.0.0.0/24"
+  bandwidth_mbps: {victim_link: 10, host_link: 10, uplink: 20}
+  openflow_version: "OpenFlow13"
+  static_arp: true
+
+# --- 4.2 Host roles per episode -----------------------------------------
+roles:
+  probes: [h1, h6, h11]     # one per edge switch
+  probe: {interval_s: 0.1, timeout_s: 0.5, target_port: 80}
+  attackers: {count: 3, spoofing: false}   # drawn at random, seeded
+  benign: {protocol: tcp, rate_mbps: [0.2, 0.5]}
+  server: {http_port: 80, iperf3: true}
+
+# --- 4.3 Regimes (R3, R5 reserved for the journal) ----------------------
+regimes:
+  R0: {name: benign_only, use: [train, eval]}
+  R1:
+    name: tcp_syn_flood
+    use: [train, eval]
+    cmd: "hping3 -S -p 80 -i u{interval_us} {victim}"
+    nominal_pps: 1000
+  R2:
+    name: udp_flood
+    use: [train, eval]
+    cmd: "hping3 --udp -p 5353 -d 1000 -i u{interval_us} {victim}"
+    nominal_pps: 2000
+    nominal_mbps: 16
+  R4:
+    name: low_rate_pulsed_udp
+    use: [eval]              # HELD OUT — never in training
+    cmd: "python3 env/pulser.py --dst {victim} --pps 833 --size 1200 --on 0.2 --period 1.0"
+    burst: {on_s: 0.2, period_s: 1.0, peak_mbps_each: 8, mean_mbps_each: 1.6}
+
+# --- 4.4 Flow rules -----------------------------------------------------
+flows:
+  priority: {default_forward: 100, monitor: 200, mitigation: 300}
+  per_protocol_split: [6, 17, 1]   # tcp, udp, icmp for features 4-6
+  mitigation_placement: source_edge  # DeepAir placement rule
+
+# --- 4.5 Suspect set (design choice) ------------------------------------
+suspects:
+  median_multiplier: 3.0
+  long_window_s: 2.0
+  exclude_probes_by_name: false   # collateral damage must show in the reward
+
+# --- 4.6 Observation: 18 features ---------------------------------------
+observation:
+  dim: 18
+  names: [pkt_rate, byte_rate, mean_pkt_size,
+          tcp_share, udp_share, icmp_share,
+          src_entropy, active_sources, top_source_share,
+          victim_link_util, victim_tx_dropped_rate, edge_table_occupancy,
+          probe_success, probe_latency_median, probe_goodput,
+          d_pkt_rate, d_udp_share, mitigated_fraction]
+  counter_source: ovs_ofctl      # ODL stats refresh too slowly for sub-second W
+  control_plane: odl_restconf
+
+# --- 4.7 Actions --------------------------------------------------------
+actions:
+  0: {name: noop}
+  1: {name: drop_suspects}
+  2: {name: meter_suspects, factor: 0.5}
+  3: {name: meter_suspects, factor: 0.1}
+  4: {name: clear_mitigation}
+
+# --- 4.8 Reward (observable terms only) ---------------------------------
+reward:
+  weights: {S: 1.0, L: -0.5, U: -0.5, C: -0.1}
+  latency_scale_ms: 500
+  util_threshold: 0.8
+  churn_scale: 15
+
+# --- 4.9 Agents ---------------------------------------------------------
+agents:
+  common:
+    algo: double_dqn
+    loss: huber
+    optimizer: {name: adam, lr: 5.0e-4}
+    gamma: 0.95
+    replay_size: 50000
+    batch_size: 64
+    target_update_steps: 1000
+    epsilon: {start: 1.0, end: 0.05, decay_steps: 30000}
+    grad_clip: 10
+  A1: {label: ddqn, mlp: [150, 150], target_params: 26300}
+  A2:
+    label: context_ddqn
+    mlp: [128, 128]
+    target_params: 26400
+    context:
+      gru_input: 24          # 18 obs + 5 one-hot action + 1 reward
+      gru_hidden: 32
+      history_k: 10
+      projection: {out: 8, activation: tanh}
+      pad_and_mask_at_episode_start: true
+  A3:
+    label: oracle_deepair
+    mlp: [150, 150]
+    target_params: 26700
+    tau_onehot: [none, syn, udp]   # design choice
+    tau_none_forces_noop: true
+
+# --- 4.10 Training (simulator) ------------------------------------------
+training:
+  steps_per_episode: 100
+  episodes: 1000
+  start_regimes: [R0, R1, R2]
+  switch: {probability: 0.5, step_range: [30, 70]}
+  forbid_in_training: [R4]
+  randomisation:
+    attack_rate: [0.5, 1.5]
+    attacker_count: [2, 4]
+    counter_noise: [0.5, 2.0]
+    benign_rate: [0.7, 1.3]
+  checkpoint_every_episodes: 50
+  keep: final            # never select a checkpoint on evaluation data
+
+# --- 4.11 Evaluation (testbed) ------------------------------------------
+evaluation:
+  epsilon: 0.0
+  frozen_weights: true
+  episodes_per_cell: 5
+  experiments:
+    E0: {regimes: [R0, R1, R2], switch: false, agents: [A1, A2, A3], episodes: 90}
+    E1: {schedule: [[R1, 50], [R2, 50]], agents: [A1, A2, A3, static], episodes: 85}
+    E2: {schedule: [[R1, 50], [R2, 50]], agents: [A3], episodes: 75,
+         label_noise: {wrong_p: 0.3, missing_p: 0.3, delay_steps: 10}}
+    E3: {regimes: [R4], schedule: [[R1, 50], [R4, 50]],
+         agents: [A1, A2, A3_miss, A3_nearest, static], episodes: 220}
+    E4: {derived_from: [E1, E3]}
+  static_rule: {median_multiplier: 3.0, action: drop}
+
+# --- 4.12 Metrics -------------------------------------------------------
+metrics:
+  adaptation_latency:
+    rolling_window: 5
+    baseline_steps: [30, 49]
+    tolerance: 0.05
+    hold_steps: 5
+  time_to_mitigate: {target_success: 0.9, hold_steps: 5}
+  bootstrap: {ci: 0.95}
+  report: mean_std_across_seeds
+
+# --- Runtime ------------------------------------------------------------
+runtime:
+  window_w_s: 0.5          # CONFIRM in 6.5; fall back to 1.0
+  odl:
+    base_url: "http://localhost:8181/rests/data"
+    auth: [admin, admin]
+    timeout_s: 2
+    retries: 3
+    node_id_encoding: percent    # openflow%3A2 — verified working
+    table_path: "flow-node-inventory:table=0"   # verified 201 on Titanium SR2
+  paths: {data: data, runs: runs, logs: logs}
