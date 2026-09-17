@@ -1,0 +1,7 @@
+Thu Sep 17 05:19:41 AM UTC 2026
+340bbf0bad3f014ec0c85081fd3d433564306f69
+Description:	Ubuntu 22.04.5 LTS
+5.15.0-191-generic
+ovs-vsctl (Open vSwitch) 2.17.12
+./scripts/env_report.sh: line 5: java: command not found
+3.10.12 2.14.0+cpu 2.2.6 1.3.0
