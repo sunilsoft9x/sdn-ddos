@@ -31,9 +31,20 @@ def regime_epoch() -> float:
 
 
 def start_servers(net, cfg, benign_hosts: list[str]) -> None:
-    """HTTP + iperf3 targets on the victim. One iperf3 server per benign port."""
+    """HTTP + iperf3 targets on the victim. One iperf3 server per benign port.
+
+    Victim TCP-stack condition (disclose in Section V): SYN cookies are turned
+    off on the victim so that R1, a genuine SYN flood, degrades service through
+    listen-backlog exhaustion rather than being silently absorbed. This is what
+    gives R1 a low-utilisation, high-packet-rate signature distinct from R2's
+    volumetric one; the setting is namespaced to the victim host only.
+    """
     victim = _host(net, cfg["topology"]["victim"]["name"])
-    victim.popen("python3 -m http.server 80", shell=True)
+    victim.cmd("sysctl -w net.ipv4.tcp_syncookies=0 2>/dev/null")
+    # Moderate half-open queue: benign completed connections never occupy it, so
+    # R0 is unaffected, but a SYN flood fills it at once and legit SYNs are lost.
+    victim.cmd("sysctl -w net.ipv4.tcp_max_syn_backlog=64 2>/dev/null")
+    victim.popen("python3 env/victim_server.py --port 80", shell=True)
     victim.popen("iperf3 -s -p 5201", shell=True)  # kept for manual checks
     for i, _ in enumerate(benign_hosts):
         victim.popen(f"iperf3 -s -p {BENIGN_BASE_PORT + i}", shell=True)
@@ -41,12 +52,23 @@ def start_servers(net, cfg, benign_hosts: list[str]) -> None:
 
 
 def start_probes(net, cfg, log_dir: str = "logs") -> dict[str, str]:
-    """Launch a probe client on each probe host. Returns host -> log path."""
+    """Launch a probe client on each probe host. Returns host -> log path.
+
+    Truncates the previous episode's log first, so aggregate() over a window
+    never picks up a stale line, and so a fresh episode starts from an empty
+    record.
+    """
+    import os
     victim_ip = cfg["topology"]["victim"]["ip"]
     probe = cfg["roles"]["probe"]
     logs: dict[str, str] = {}
+    os.makedirs(log_dir, exist_ok=True)
     for name in cfg["roles"]["probes"]:
         out = f"{log_dir}/probe_{name}.jsonl"
+        try:
+            open(out, "w").close()   # truncate any previous episode's log
+        except OSError:
+            pass
         _host(net, name).popen(
             f"python3 env/probes.py --client --dst {victim_ip} "
             f"--port {probe['target_port']} --interval {probe['interval_s']} "
@@ -120,11 +142,17 @@ def start_benign(net, cfg, benign_hosts: list[str], rng, duration_s: int = 120) 
 
 
 def stop_all(net) -> None:
-    """Kill every generator on every host. Idempotent; safe between episodes."""
+    """Kill every generator AND probe client on every host.
+
+    The probe kill matters: reset() launches fresh probe clients each episode,
+    so without this they accumulate across episodes, pile load on the victim
+    and interleave writes into the logs — which silently corrupts calibration.
+    """
     for host in net.hosts:
         host.cmd("pkill -f hping3 2>/dev/null; "
                  "pkill -f 'pulser.py' 2>/dev/null; "
-                 "pkill -f 'iperf3 -c' 2>/dev/null")
+                 "pkill -f 'iperf3 -c' 2>/dev/null; "
+                 "pkill -f 'probes.py' 2>/dev/null")
     time.sleep(0.5)
 
 
