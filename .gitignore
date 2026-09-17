@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+venv/
+runs/*
+!runs/.gitkeep
+logs/*
+!logs/.gitkeep
+*.pcap
+*.parquet
+data/*.parquet
+!data/environment_*.txt
+!data/timing.json
+!data/.gitkeep
