@@ -31,18 +31,18 @@ regimes:
   R1:
     name: tcp_syn_flood
     use: [train, eval]
-    cmd: "hping3 -S -p 80 -i u{interval_us} {victim}"
-    nominal_pps: 1000
+    cmd: "hping3 -S -p 80 -d 500 -i u{interval_us} {victim}"
+    nominal_pps: 540
   R2:
     name: udp_flood
     use: [train, eval]
     cmd: "hping3 --udp -p 5353 -d 1000 -i u{interval_us} {victim}"
-    nominal_pps: 450
+    nominal_pps: 310
     nominal_mbps: 16
   R4:
     name: low_rate_pulsed_udp
     use: [eval]              # HELD OUT — never in training
-    cmd: "python3 env/pulser.py --dst {victim} --pps 350 --size 1200 --on 0.2 --period 1.0"
+    cmd: "python3 env/pulser.py --dst {victim} --pps 1200 --size 1200 --on 0.2 --period 1.0"
     burst: {on_s: 0.2, period_s: 1.0, peak_mbps_each: 8, mean_mbps_each: 1.6}
 
 # --- 4.4 Flow rules -----------------------------------------------------
