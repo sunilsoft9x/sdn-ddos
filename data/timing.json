@@ -1,0 +1,13 @@
+{
+  "measured_at": "2026-09-17T06:53:23+0000",
+  "meter": {
+    "edge": "s2",
+    "host": "h1",
+    "band_kbps": 5000,
+    "meter_put": 204,
+    "flow_put": 204,
+    "meter_visible_on_switch": true,
+    "flow_has_meter_instruction": true,
+    "dump_meters": "OFPST_METER_CONFIG reply (OF1.3) (xid=0x2):\nmeter=1 kbps bands=\ntype=drop rate=5000"
+  }
+}
