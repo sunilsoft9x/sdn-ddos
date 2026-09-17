@@ -32,12 +32,12 @@ regimes:
     name: tcp_syn_flood
     use: [train, eval]
     cmd: "hping3 -S -p 80 -d 500 -i u{interval_us} {victim}"
-    nominal_pps: 540
+    nominal_pps: 640
   R2:
     name: udp_flood
     use: [train, eval]
     cmd: "hping3 --udp -p 5353 -d 1000 -i u{interval_us} {victim}"
-    nominal_pps: 310
+    nominal_pps: 520
     nominal_mbps: 16
   R4:
     name: low_rate_pulsed_udp

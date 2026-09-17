@@ -176,9 +176,14 @@ class TestbedEnv(_BASE):
             flow_id = f"m300-{ip.replace('.', '_')}"
             if flow_id in self._mitigation:
                 continue  # already mitigated this source
+            # proto=None: mitigate ALL of the suspect source's traffic to the
+            # victim, not just UDP. The suspect is flagged by volume with no
+            # protocol knowledge (label-free), so mitigation must be
+            # protocol-agnostic; a hardcoded proto match silently fails to
+            # touch a TCP flood like R1.
             if action == 1:
                 self.odl.put_flow(edge, flow_id, pri, out_port=None,
-                                  src=ip, dst=self.victim_ip, proto=17)
+                                  src=ip, dst=self.victim_ip, proto=None)
                 self._mitigation[flow_id] = {"src": ip, "edge": edge,
                                              "kind": "drop", "meter_id": None}
                 churn += 1
@@ -190,7 +195,7 @@ class TestbedEnv(_BASE):
                 band_kbps = max(64, int(rate_pps * factor * 1200 * 8 / 1000))
                 self.odl.put_meter(edge, meter_id, band_kbps)
                 self.odl.put_flow(edge, flow_id, pri, out_port=uplink,
-                                  src=ip, dst=self.victim_ip, proto=17,
+                                  src=ip, dst=self.victim_ip, proto=None,
                                   meter_id=meter_id)
                 self._mitigation[flow_id] = {"src": ip, "edge": edge,
                                              "kind": f"meter{factor}",
