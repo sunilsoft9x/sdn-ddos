@@ -1,0 +1,58 @@
+{
+  "holdout_scale": 0.7,
+  "per_regime": {
+    "R1": {
+      "testbed_success": 1.0,
+      "sim_success": 0.924,
+      "abs_error": 0.076
+    },
+    "R2": {
+      "testbed_success": 1.0,
+      "sim_success": 0.759,
+      "abs_error": 0.241
+    }
+  },
+  "feature_rel_error": {
+    "R1": {
+      "f_pkt_rate": 0.48,
+      "f_byte_rate": 0.117,
+      "f_mean_pkt_size": 0.698,
+      "f_tcp_share": 0.0,
+      "f_udp_share": 0.0,
+      "f_icmp_share": 0.0,
+      "f_src_entropy": 0.199,
+      "f_active_sources": 0.041,
+      "f_top_source_share": 0.03,
+      "f_victim_link_util": 0.118,
+      "f_victim_tx_dropped_rate": 0.0,
+      "f_edge_table_occupancy": 0.0,
+      "f_probe_success_feat": 0.076,
+      "f_probe_latency_median": 0.859,
+      "f_probe_goodput": 1590.626,
+      "f_d_pkt_rate": 1.532,
+      "f_d_udp_share": 0.0,
+      "f_mitigated_fraction": 0.0
+    },
+    "R2": {
+      "f_pkt_rate": 0.186,
+      "f_byte_rate": 0.034,
+      "f_mean_pkt_size": 0.27,
+      "f_tcp_share": 0.991,
+      "f_udp_share": 0.168,
+      "f_icmp_share": 0.0,
+      "f_src_entropy": 0.319,
+      "f_active_sources": 1.0,
+      "f_top_source_share": 0.034,
+      "f_victim_link_util": 0.034,
+      "f_victim_tx_dropped_rate": 59.109,
+      "f_edge_table_occupancy": 0.0,
+      "f_probe_success_feat": 0.241,
+      "f_probe_latency_median": 126.147,
+      "f_probe_goodput": 832.181,
+      "f_d_pkt_rate": 7.943,
+      "f_d_udp_share": 18.489,
+      "f_mitigated_fraction": 0.0
+    }
+  },
+  "cross_domain_accuracy": 1.0
+}
