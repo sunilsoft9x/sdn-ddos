@@ -75,7 +75,13 @@ df = synthetic({(3, 2.0): 1.0}); df.loc[df.step < cal.FIRST_POST, "flagged"] = F
 combo, _ = cal.summarise(df)
 check(abs(combo.min_flag_share.iloc[0] - 1.0) < 1e-12, "unflagged steps before 12 do not count against a combination")
 
-print("2. run_episode on the fake network")
+print("2. Output file")
+check(pathlib.Path("runs") / f"{cal.ENV_RUN_ID}.parquet" != cal.OUT,
+      "the environment's own log cannot overwrite the calibration rows")
+src = (REPO / "scripts" / "calibrate_surge.py").read_text()
+check("TestbedEnv(run_id=ENV_RUN_ID)" in src, "the script opens the environment under ENV_RUN_ID")
+
+print("3. run_episode on the fake network")
 t = load("t", REPO / "scripts" / "test_wp1_events.py")
 new = t.load(REPO / "env" / "testbed_env.py", "new_env")
 env = t.make_env(new)

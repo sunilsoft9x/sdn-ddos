@@ -64,7 +64,7 @@ def run_episode(env, options, seed, arm):
 
 def main() -> int:
     import pandas as pd
-    env = TestbedEnv(run_id="smoke_wp1")
+    env = TestbedEnv(run_id="smoke_wp1_env")   # its own log must not overwrite OUT
     rows, failures = [], []
     try:
         for name, options in EVENTS.items():

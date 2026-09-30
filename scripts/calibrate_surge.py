@@ -41,6 +41,9 @@ STEPS = 40
 FIRST_POST = AT + 2
 PASS_SHARE = 0.90
 OUT = pathlib.Path("runs/calibrate_surge.parquet")
+# The environment writes its own per-step log to runs/<run_id>.parquet when it
+# closes. It must not share a name with OUT, or it overwrites these rows.
+ENV_RUN_ID = "calibrate_surge_env"
 
 
 def run_episode(env, n_hosts, rate, seed):
@@ -120,7 +123,7 @@ def main() -> int:
     if not args.summarise_only:
         from env.testbed_env import TestbedEnv
         OUT.parent.mkdir(parents=True, exist_ok=True)
-        env = TestbedEnv(run_id="calibrate_surge")
+        env = TestbedEnv(run_id=ENV_RUN_ID)
         rows = []
         try:
             for n in N_HOSTS:
@@ -135,6 +138,8 @@ def main() -> int:
                         pd.DataFrame(rows).to_parquet(OUT, index=False)   # keep partial results
         finally:
             env.close()
+            if rows:
+                pd.DataFrame(rows).to_parquet(OUT, index=False)
     combo, choice = summarise(pd.read_parquet(OUT))
     report(combo, choice)
     print(f"\nrows in {OUT}")
