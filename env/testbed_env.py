@@ -95,6 +95,14 @@ class TestbedEnv(_BASE):
         self._switch_step = None
         self._switch_to = None
         self._attackers: list[str] = []
+        # IIPEM events (C1 surge, C2 swap); inactive unless options ask.
+        self._event: str | None = None
+        self._event_step: int | None = None
+        self._event_fired = False
+        self._surge_hosts: list[str] = []
+        self._surge_rates: dict[str, float] = {}
+        self._next_attackers: list[str] = []
+        self._former_attackers: list[str] = []
         self._scale = 1.0
         self._epoch = 0.0
         self._probe_logs: dict[str, str] = {}
@@ -261,6 +269,7 @@ class TestbedEnv(_BASE):
 
         options = options or {}
         self._configure_episode(options)
+        self._configure_event(options)
 
         self._epoch = traffic.regime_epoch()
         traffic.start_regime(self.net, self._regime, self._attackers,
@@ -277,7 +286,79 @@ class TestbedEnv(_BASE):
                                churn=0, first=True)
         info = {"regime": self._regime, "episode": self._episode,
                 "attackers": list(self._attackers)}
+        info.update(self._event_info())
         return obs, info
+
+    def _configure_event(self, options: dict) -> None:
+        """Set up an IIPEM event from options["surge"] or options["swap"].
+
+        The hosts involved are drawn here, once, from the episode's own
+        generator, so every arm run on the same episode seed gets the
+        same surge hosts or the same replacement attackers.
+        """
+        self._event = None
+        self._event_step = None
+        self._event_fired = False
+        self._surge_hosts = []
+        self._surge_rates = {}
+        self._next_attackers = []
+        self._former_attackers = []
+        surge, swap = options.get("surge"), options.get("swap")
+        if not surge and not swap:
+            return
+        if surge and swap:
+            raise ValueError("an episode takes one event: surge or swap")
+        if self._switch_step is not None:
+            raise ValueError("an event cannot be combined with a regime switch")
+        spec = surge or swap
+        at = int(spec["at"])
+        if not 1 <= at < self.steps_per_episode:
+            raise ValueError(f"event step {at} outside 1..{self.steps_per_episode - 1}")
+        benign = self._benign_hosts()
+        if surge:
+            n = int(surge["n_hosts"])
+            rate = float(surge["rate_mbps"])
+            if not 1 <= n <= len(benign):
+                raise ValueError(f"surge n_hosts {n} outside 1..{len(benign)}")
+            if rate <= 0:
+                raise ValueError("surge rate_mbps must be positive")
+            self._surge_hosts = self._rng.sample(benign, n)
+            self._surge_rates = {h: rate for h in self._surge_hosts}
+            self._event = "surge"
+        else:
+            if self._regime == "R0":
+                raise ValueError("a swap needs an attack regime, not R0")
+            n = len(self._attackers)
+            if n > len(benign):
+                raise ValueError("not enough benign hosts to swap in")
+            self._next_attackers = self._rng.sample(benign, n)
+            self._event = "swap"
+        self._event_step = at
+
+    def _fire_event(self) -> None:
+        """Enact the event through the same stop/restart path as a regime switch."""
+        traffic.stop_all(self.net)
+        if self._event == "swap":
+            self._former_attackers = list(self._attackers)
+            self._attackers = list(self._next_attackers)
+        self._epoch = traffic.regime_epoch()
+        traffic.start_regime(self.net, self._regime, self._attackers,
+                             self.cfg, scale=self._scale, epoch=self._epoch)
+        traffic.start_benign(self.net, self.cfg,
+                             benign_hosts=self._benign_hosts(), rng=self._rng,
+                             rate_override=self._surge_rates or None)
+        self._probe_logs = traffic.start_probes(self.net, self.cfg)
+        self._event_fired = True
+
+    def _event_info(self) -> dict:
+        """Roles for logging. Surge hosts count as surging only once fired."""
+        return {
+            "event": self._event, "event_step": self._event_step,
+            "event_fired": self._event_fired,
+            "attackers": list(self._attackers),
+            "former_attackers": list(self._former_attackers),
+            "surge_hosts": list(self._surge_hosts) if self._event_fired else [],
+        }
 
     def _configure_episode(self, options: dict) -> None:
         """Pick attackers, scale, and the regime schedule from seed or options."""
@@ -354,6 +435,10 @@ class TestbedEnv(_BASE):
                                  benign_hosts=self._benign_hosts(), rng=self._rng)
             self._probe_logs = traffic.start_probes(self.net, self.cfg)
 
+        if (self._event_step is not None and not self._event_fired
+                and self._t == self._event_step):
+            self._fire_event()
+
         self._prev_snapshot = curr
         terminated = False
         truncated = self._t >= self.steps_per_episode
@@ -383,6 +468,7 @@ class TestbedEnv(_BASE):
             "collateral": self._collateral_fraction(),
             "probe_n": probe["n"], "t_wall": curr["t_wall"],
         }
+        info.update(self._event_info())
         if not first:
             self._log_row(vec, action_reward=r, terms=terms, info=info)
         return vec, info
@@ -403,7 +489,10 @@ class TestbedEnv(_BASE):
                "regime": self._regime, "reward": action_reward,
                "S": terms["S"], "L": terms["L"], "U": terms["U"], "C": terms["C"],
                "rule_count": info["rule_count"], "collateral": info["collateral"],
-               "probe_n": info["probe_n"], "t_wall": info["t_wall"]}
+               "probe_n": info["probe_n"], "t_wall": info["t_wall"],
+               "event": info.get("event"), "event_fired": info.get("event_fired"),
+               "attackers": ",".join(info.get("attackers", [])),
+               "surge_hosts": ",".join(info.get("surge_hosts", []))}
         for name, val in zip(
             ["pkt_rate", "byte_rate", "mean_pkt_size", "tcp_share", "udp_share",
              "icmp_share", "src_entropy", "active_sources", "top_source_share",

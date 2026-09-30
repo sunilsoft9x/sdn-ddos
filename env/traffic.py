@@ -128,13 +128,21 @@ def start_regime(net, regime: str, attackers: list[str], cfg: dict,
     return handles
 
 
-def start_benign(net, cfg, benign_hosts: list[str], rng, duration_s: int = 120) -> list:
-    """iperf3 TCP from each benign host at 0.2-0.5 Mbps, its own victim port."""
+def start_benign(net, cfg, benign_hosts: list[str], rng, duration_s: int = 120,
+                 rate_override: dict[str, float] | None = None) -> list:
+    """iperf3 TCP from each benign host at 0.2-0.5 Mbps, its own victim port.
+
+    rate_override maps a host to a fixed rate in Mbps (the IIPEM benign
+    surge). The random rate is drawn for every host either way, so the
+    generator is consumed identically with or without an override.
+    """
     victim_ip = cfg["topology"]["victim"]["ip"]
     lo, hi = cfg["roles"]["benign"]["rate_mbps"]
     handles = []
     for i, name in enumerate(benign_hosts):
         rate = round(rng.uniform(lo, hi), 3)
+        if rate_override and name in rate_override:
+            rate = round(float(rate_override[name]), 3)
         cmd = (f"iperf3 -c {victim_ip} -p {BENIGN_BASE_PORT + i} "
                f"-b {rate}M -t {duration_s}")
         handles.append(_host(net, name).popen(cmd, shell=True))
