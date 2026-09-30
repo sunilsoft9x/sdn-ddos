@@ -1,7 +1,9 @@
 """Live smoke run for the IIPEM WP1 events (run on a VM, before any main run).
 
 Checks on the real testbed what the offline test cannot:
-  - the probes keep reporting after the step-50 restart (probe_n > 0);
+  - the probes keep reporting after the step-50 restart: the share of steps
+    with at least one probe result after the event is at least half the share
+    before it (a flood can leave single windows empty, before and after alike);
   - the event fires once, in the window after step 50;
   - two arms on the same episode seed get the same roles;
   - after a swap, collateral is measured against the new roles.
@@ -40,9 +42,10 @@ def run_episode(env, options, seed, arm):
     obs, info = env.reset(seed=seed, options=options)
     rows = []
     for t in range(env.steps_per_episode):
-        suspects = env.detector.suspects()
-        action = static.act_from_suspects(len(suspects) > 0) if static else 0
+        action = (static.act_from_suspects(len(env.detector.suspects()) > 0)
+                  if static else 0)
         obs, r, term, trunc, info = env.step(action)
+        suspects = env.detector.suspects()          # flags for the window just observed
         surge_ips = {env._src_ip(h) for h in info["surge_hosts"]}
         rows.append({
             "arm": arm, "seed": seed, "step": t + 1, "action": action,
@@ -75,13 +78,15 @@ def main() -> int:
                     per_arm[arm] = ep
                     fired = [r["step"] for r in ep if r["event_fired"]]
                     first = fired[0] if fired else None
-                    late = [r["probe_n"] for r in ep if r["step"] >= 52]
+                    pre = [r["probe_n"] > 0 for r in ep if 3 <= r["step"] <= 50]
+                    post = [r["probe_n"] > 0 for r in ep if r["step"] >= 52]
+                    pre_share, post_share = sum(pre) / len(pre), sum(post) / len(post)
                     print(f"{name:5s} seed {seed} {arm:6s}: fired from step {first}, "
-                          f"probe_n at 51 = {ep[50]['probe_n']}, min probe_n from 52 = {min(late)}")
+                          f"steps with probe results: before {pre_share:.3f}, after {post_share:.3f}")
                     if first != 51:
                         failures.append(f"{name} {seed} {arm}: event first seen at {first}, expected 51")
-                    if min(late) <= 0:
-                        failures.append(f"{name} {seed} {arm}: probes silent after the event")
+                    if post_share == 0 or post_share < 0.5 * pre_share:
+                        failures.append(f"{name} {seed} {arm}: probes stopped reporting after the event")
                 roles = lambda ep: [(r["attackers"], r["surge_hosts"], r["former_attackers"]) for r in ep]
                 if roles(per_arm["noop"]) != roles(per_arm["static"]):
                     failures.append(f"{name} {seed}: the two arms saw different roles")
