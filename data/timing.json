@@ -1,13 +1,29 @@
 {
-  "measured_at": "2026-09-17T06:53:23+0000",
+  "measured_at": "2026-09-19T05:36:55+0000",
   "meter": {
     "edge": "s2",
     "host": "h1",
     "band_kbps": 5000,
-    "meter_put": 204,
-    "flow_put": 204,
+    "meter_put": 201,
+    "flow_put": 201,
     "meter_visible_on_switch": true,
     "flow_has_meter_instruction": true,
     "dump_meters": "OFPST_METER_CONFIG reply (OF1.3) (xid=0x2):\nmeter=1 kbps bands=\ntype=drop rate=5000"
+  },
+  "control_latency": {
+    "samples": 100,
+    "timeouts": 0,
+    "median_ms": 12.55,
+    "p95_ms": 17.16,
+    "min_ms": 6.47,
+    "max_ms": 19.44,
+    "mean_ms": 12.52,
+    "swept_leftovers": 0,
+    "poll_interval_ms": 5.0
+  },
+  "w_recommendation": {
+    "w_s": 0.5,
+    "reason": "p95 control latency 17.16 ms is under the 150 ms threshold",
+    "caveat": "still confirm probe success is stable at a 0.5 s timeout under R0"
   }
 }

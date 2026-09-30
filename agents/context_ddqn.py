@@ -101,6 +101,12 @@ class ContextDDQNAgent:
         if done:
             self.reset_history()
 
+    def observe(self, obs, action, reward, done) -> None:
+        """Update the GRU history during evaluation: no buffer, no learning."""
+        self._history.append(self._transition_vec(obs, action, reward))
+        if done:
+            self.reset_history()
+
     def learn(self) -> float | None:
         if len(self.buffer) < self.h.batch_size:
             return None

@@ -55,7 +55,7 @@ flows:
 suspects:
   median_multiplier: 3.0
   long_window_s: 2.0
-  exclude_probes_by_name: false   # collateral damage must show in the reward
+  exclude_probes_by_name: true   # collateral damage must show in the reward
 
 # --- 4.6 Observation: 18 features ---------------------------------------
 observation:

@@ -352,6 +352,7 @@ class TestbedEnv(_BASE):
                                  self.cfg, scale=self._scale, epoch=self._epoch)
             traffic.start_benign(self.net, self.cfg,
                                  benign_hosts=self._benign_hosts(), rng=self._rng)
+            self._probe_logs = traffic.start_probes(self.net, self.cfg)
 
         self._prev_snapshot = curr
         terminated = False
