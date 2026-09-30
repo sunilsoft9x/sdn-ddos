@@ -9,9 +9,11 @@ at once; the long-window rate keeps a pulsed attacker flagged between bursts.
 The rule reads volume only, never protocol or regime, so it hands the agent no
 label information. That is the property the whole contribution rests on.
 
-Probe hosts are NOT protected by name (config exclude_probes_by_name = false):
-if a probe host is ever flagged, that is collateral and it must show up in the
-reward, not be hidden by the detector.
+Probe hosts are excluded from the suspect set by name (config
+exclude_probes_by_name = true). The probes are the operator's own monitoring,
+which an operator would not block; the exemption is the same in every regime
+and reveals no attack type. The simulator creates no probe traffic, so the
+setting has no effect in training.
 
 Design choice recorded for Section IV: the cross-source median is taken over
 sources active in the long window (nonzero rate), not over all fifteen. With a
