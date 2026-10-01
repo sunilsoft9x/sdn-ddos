@@ -25,6 +25,7 @@ import pathlib
 import random
 import subprocess
 import time
+from time import perf_counter
 
 import numpy as np
 import yaml
@@ -43,7 +44,7 @@ from env.ovs_stats import collect, load_config
 from env.odl_client import OdlClient
 from env.probes import aggregate, read_lines
 from env.suspects import SuspectDetector
-from env import topology, traffic
+from env import iipem_log, topology, traffic
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
 
@@ -103,6 +104,12 @@ class TestbedEnv(_BASE):
         self._surge_rates: dict[str, float] = {}
         self._next_attackers: list[str] = []
         self._former_attackers: list[str] = []
+        # IIPEM WP3 measurement; inactive unless options["iipem_log"].
+        self._iipem_log = False
+        self._acct_ready = False
+        self._acct_pre: dict | None = None
+        self._ctl = None
+        self._last_apply_ms: float | None = None
         self._scale = 1.0
         self._epoch = 0.0
         self._probe_logs: dict[str, str] = {}
@@ -270,6 +277,7 @@ class TestbedEnv(_BASE):
         options = options or {}
         self._configure_episode(options)
         self._configure_event(options)
+        self._configure_iipem_log(options)
 
         self._epoch = traffic.regime_epoch()
         traffic.start_regime(self.net, self._regime, self._attackers,
@@ -337,6 +345,8 @@ class TestbedEnv(_BASE):
 
     def _fire_event(self) -> None:
         """Enact the event through the same stop/restart path as a regime switch."""
+        if self._iipem_log:
+            self._acct_pre = self._acct_read(zero=True)
         traffic.stop_all(self.net)
         if self._event == "swap":
             self._former_attackers = list(self._attackers)
@@ -358,6 +368,43 @@ class TestbedEnv(_BASE):
             "attackers": list(self._attackers),
             "former_attackers": list(self._former_attackers),
             "surge_hosts": list(self._surge_hosts) if self._event_fired else [],
+        }
+
+    def _victim(self):
+        return self.net.get(self.cfg["topology"]["victim"]["name"])
+
+    def _configure_iipem_log(self, options: dict) -> None:
+        """Arm WP3 logging for this episode if options["iipem_log"] is set."""
+        self._iipem_log = bool(options.get("iipem_log"))
+        self._acct_pre = None
+        self._last_apply_ms = None
+        if not self._iipem_log:
+            return
+        if not self._acct_ready:
+            sources = sorted({self._src_ip(h) for h in self.candidate_attackers + self.probe_hosts},
+                             key=lambda ip: int(ip.split(".")[-1]))
+            self._victim().cmd(iipem_log.acct_setup_cmd(sources))
+            self._acct_ready = True
+        self._victim().cmd(iipem_log.acct_zero_cmd())
+        if self._ctl is None:
+            self._ctl = iipem_log.ControllerSampler()
+        self._ctl.sample()             # baseline for the first CPU share
+
+    def _acct_read(self, zero: bool) -> dict:
+        return iipem_log.parse_acct(self._victim().cmd(iipem_log.acct_read_cmd(zero=zero)))
+
+    def _iipem_info(self) -> dict:
+        """Per-step WP3 fields: flags for the window just observed, rules in
+        place during it, the action's install time and controller load."""
+        if not self._iipem_log:
+            return {}
+        cpu, rss = self._ctl.sample() if self._ctl else (None, None)
+        return {
+            "flagged": sorted(self.detector.suspects()),
+            "mitigated": sorted({m["src"] for m in self._mitigation.values()}),
+            "apply_ms": self._last_apply_ms,
+            "ctl_cpu_pct": cpu, "ctl_rss_mb": rss,
+            "ctl_pid": self._ctl.pid if self._ctl else None,
         }
 
     def _configure_episode(self, options: dict) -> None:
@@ -409,7 +456,9 @@ class TestbedEnv(_BASE):
         rates = getattr(self, "_last_rates", {})
 
         # 2. Enact the action.
+        t0 = perf_counter()
         churn = self._apply_action(int(action), suspects, rates)
+        self._last_apply_ms = (perf_counter() - t0) * 1000.0
 
         # 3. Wait out the window, then read the new snapshot.
         elapsed = time.time() - self._prev_snapshot["t_wall"]
@@ -442,6 +491,12 @@ class TestbedEnv(_BASE):
         self._prev_snapshot = curr
         terminated = False
         truncated = self._t >= self.steps_per_episode
+        if truncated and self._iipem_log:
+            final = self._acct_read(zero=False)
+            if self._acct_pre is None:          # no event: one phase
+                info["delivered_pre"], info["delivered_post"] = final, None
+            else:
+                info["delivered_pre"], info["delivered_post"] = self._acct_pre, final
         return obs, info["reward"], terminated, truncated, info
 
     def _observe(self, prev, curr, probe_window, churn, first):
@@ -469,6 +524,7 @@ class TestbedEnv(_BASE):
             "probe_n": probe["n"], "t_wall": curr["t_wall"],
         }
         info.update(self._event_info())
+        info.update(self._iipem_info())
         if not first:
             self._log_row(vec, action_reward=r, terms=terms, info=info)
         return vec, info
@@ -492,7 +548,12 @@ class TestbedEnv(_BASE):
                "probe_n": info["probe_n"], "t_wall": info["t_wall"],
                "event": info.get("event"), "event_fired": info.get("event_fired"),
                "attackers": ",".join(info.get("attackers", [])),
-               "surge_hosts": ",".join(info.get("surge_hosts", []))}
+               "surge_hosts": ",".join(info.get("surge_hosts", [])),
+               "flagged": ",".join(info.get("flagged", [])),
+               "mitigated": ",".join(info.get("mitigated", [])),
+               "apply_ms": info.get("apply_ms"),
+               "ctl_cpu_pct": info.get("ctl_cpu_pct"),
+               "ctl_rss_mb": info.get("ctl_rss_mb")}
         for name, val in zip(
             ["pkt_rate", "byte_rate", "mean_pkt_size", "tcp_share", "udp_share",
              "icmp_share", "src_entropy", "active_sources", "top_source_share",
