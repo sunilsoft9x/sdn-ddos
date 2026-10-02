@@ -11,10 +11,10 @@ C1_surge,planned,worst_isasf,"Worst-window service, ISASF minS (whole episode)",
 C1_surge,planned,worst_isasf,"Worst-window service, ISASF minS (whole episode)",A1,10,0.03333333333333333,0.0,0.16666666666666666,0.08,0.0
 C1_surge,planned,worst_isasf,"Worst-window service, ISASF minS (whole episode)",A3,10,0.0,0.0,0.0,0.0,0.0
 C1_surge,planned,worst_isasf,"Worst-window service, ISASF minS (whole episode)",static,10,0.0,0.0,0.0,0.0,0.0
-C1_surge,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A2,10,5.0,4.5,5.0,4.8,5.0
-C1_surge,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A1,10,4.833333333333333,4.166666666666667,5.0,4.6,5.0
-C1_surge,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A3,10,5.0,5.0,5.0,5.0,5.0
-C1_surge,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",static,10,5.0,5.0,5.0,5.0,5.0
+C1_surge,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A2,10,0.0,0.0,0.0,0.0,0.0
+C1_surge,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A1,10,0.0,0.0,0.0,0.0,0.0
+C1_surge,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A3,10,0.0,0.0,0.0,0.0,0.0
+C1_surge,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",static,10,0.0,0.0,0.0,0.0,0.0
 C1_surge,planned,collateral_post,Collateral after the event,A2,10,0.6286666666666667,0.5213333333333333,0.8153333333333332,0.6708000000000001,0.5979999999999999
 C1_surge,planned,collateral_post,Collateral after the event,A1,10,0.6273333333333333,0.4453166666666667,0.8660000000000001,0.6408,0.614
 C1_surge,planned,collateral_post,Collateral after the event,A3,10,0.0,0.0,0.0,0.0,0.0
@@ -79,10 +79,10 @@ C2_swap,planned,worst_isasf,"Worst-window service, ISASF minS (whole episode)",A
 C2_swap,planned,worst_isasf,"Worst-window service, ISASF minS (whole episode)",A1,10,0.0,0.0,0.10000000000000002,0.04,0.0
 C2_swap,planned,worst_isasf,"Worst-window service, ISASF minS (whole episode)",A3,10,0.0,0.0,0.03333333333333333,0.02,0.0
 C2_swap,planned,worst_isasf,"Worst-window service, ISASF minS (whole episode)",static,10,0.0,0.0,0.0,0.0,0.0
-C2_swap,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A2,10,5.533333333333334,4.533333333333333,6.300000000000001,5.42,5.5
-C2_swap,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A1,10,5.866666666666667,5.133333333333334,6.867499999999988,6.04,5.8
-C2_swap,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A3,10,5.766666666666667,4.7,7.2,5.92,5.6
-C2_swap,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",static,10,8.133333333333333,7.166666666666667,10.033333333333333,8.71,8.4
+C2_swap,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A2,10,0.39999999999999997,0.0,1.4000000000000001,0.72,0.0
+C2_swap,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A1,10,1.5,0.3,2.4,1.52,2.1
+C2_swap,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A3,10,2.533333333333333,1.2,4.466666666666667,2.8200000000000003,1.7999999999999998
+C2_swap,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",static,10,2.35,0.7999999999999999,4.033333333333334,2.45,1.7999999999999998
 C2_swap,planned,collateral_post,Collateral after the event,A2,10,0.2529806156806157,0.19273953823953827,0.4704949013949015,0.32254597402597407,0.21683549783549783
 C2_swap,planned,collateral_post,Collateral after the event,A1,10,0.2781981240981241,0.16384686507936508,0.5409663576238576,0.33737832611832613,0.21242380952380954
 C2_swap,planned,collateral_post,Collateral after the event,A3,10,0.10250079365079363,0.08765079365079365,0.11572619047619048,0.10092857142857144,0.10243809523809523

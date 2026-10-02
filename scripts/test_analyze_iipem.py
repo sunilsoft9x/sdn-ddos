@@ -132,10 +132,11 @@ def test_c2_metrics():
     check("C2: attack MB pre/post", close(e.attack_mb_pre, 0.024) and close(e.attack_mb_post, 0.018))
     check("C2: worst_isasf (ISASF minS from step 2) includes the event dip (0.0)",
           close(e.worst_isasf, 0.0), e.worst_isasf)
-    # ISASF recovery: baseline 1.0, target 0.95; 5-step rolling mean of S[50:] is
-    # 0, .05, .117, .3375, .47, .67, .85, 1.0 ... -> first held at t = 7
-    check("recovery: ISASF latency 7", bool(e.recovered) and e.adapt_latency == 7,
-          (e.recovered, e.adapt_latency))
+    # ISASF recovery starts at event + 1 = step 51 (ISASF's switch step is one row after
+    # the dip). Baseline S[31:51] = 19 ones and S[50] = 0 -> 0.95, target 0.9025.
+    # 5-step rolling mean of S[51:] = .1, .175, .45, .5875, .67, .85, 1.0 ... -> t = 6
+    check("recovery: ISASF latency 6 (clock starts one step after the event)",
+          bool(e.recovered) and e.adapt_latency == 6, (e.recovered, e.adapt_latency))
 
 
 def isasf_recovery_latency(S, regime):
@@ -227,6 +228,12 @@ def test_step22_c1():
     check("C1x: rise minus other rise = (0.4 - 10/96) - (20/150 - 10/144)",
           close(e.surge_rise_minus_other, (0.4 - 10 / 96) - (20 / 150 - 10 / 144)))
     check("C1x: S = 0 at the event is flagged as 0 when S = 1", e.S_zero_at_event == 0.0)
+    S = np.ones(100)
+    S[50] = 0.0                                    # the probe-restart dip alone
+    e2 = A.episode_metrics(pd.DataFrame(episode("C1_surge", "A2", 1000, S=S, surge="h8,h12")),
+                           None)[0].iloc[0]
+    check("recovery: a dip at the event row alone gives latency 0, as in ISASF E1/E3",
+          bool(e2.recovered) and e2.adapt_latency == 0, (e2.recovered, e2.adapt_latency))
     no_dl = A.episode_metrics(pd.DataFrame(rows), None)[0].iloc[0]
     check("C1x: without delivery counters the host universe is unknown (NaN)",
           np.isnan(no_dl.other_blocked_post) and np.isnan(no_dl.get("surge_host_block_pre", np.nan)))
@@ -376,7 +383,8 @@ def test_end_to_end():
               and (t[t.parameter == "stale_steps"].family == "planned").all())
         md = (out / "summary.md").read_text()
         check("e2e: summary shows non-zero n and the exploratory heading",
-              "n (non-zero)" in md and "not pre-registered" in md and "fastest possible recovery" in md)
+              "n (non-zero)" in md and "not pre-registered" in md
+              and "the dip alone gives a latency of 0" in md)
 
 
 if __name__ == "__main__":

@@ -43,6 +43,12 @@ TRANSIENT = 2
 # S (min_periods 1) from the event on returns to RECOVER_FRAC x the mean S of the
 # BASELINE_WIN steps before the event and holds for HOLD steps; latency = first
 # such step - event; censored if it never holds.
+# The recovery clock starts RECOVERY_OFFSET steps after the event row. ISASF's
+# switch_step is the first row with the new regime label, which in all 195 ISASF
+# E1/E3 episodes is step 51, one row after the probe-restart dip at step 50
+# (status step 24). The IIPEM event row is the dip row itself (step 50), so the
+# same clock starts at event + 1.
+RECOVERY_OFFSET = 1
 RECOVER_FRAC = 0.95
 BASELINE_WIN = 20
 ROLL = 5
@@ -470,7 +476,7 @@ def episode_metrics(st, dl):
         S = g["S"].to_numpy()
         att0, att1 = hosts(g.attackers.iloc[0]), hosts(g.attackers.iloc[-1])
         former, surge = hosts(g.former_attackers.iloc[-1]), hosts(g.surge_hosts.iloc[-1])
-        rec, lat = recovery(S, ev)
+        rec, lat = recovery(S, ev + RECOVERY_OFFSET)
         m = dict(zip(KEY, k))
         m.update(
             event_step=ev, n_steps=n,
@@ -778,14 +784,16 @@ def write_summary(path, notes, em, iq, tests, rec, within, fig_notes, args):
     L += [f"- Note: {n}" for n in notes + fig_notes]
     # Measurement artefacts, computed here rather than typed.
     z = em.groupby(["cond", "agent"], observed=True).S_zero_at_event.mean()
-    floor = recovery(np.r_[np.ones(BASELINE_WIN), 0.0, np.ones(HOLD + ROLL)], BASELINE_WIN)[1]
+    dip_only = recovery(np.r_[np.ones(BASELINE_WIN), 0.0, np.ones(HOLD + ROLL)],
+                        BASELINE_WIN + RECOVERY_OFFSET)[1]
     L += ["", "## Reading the results", "",
           f"- The event restarts the probe clients, so S = 0 at the event step in "
           f"{z.min():.0%} to {z.max():.0%} of episodes per arm and condition. Consequences: "
-          f"`worst_isasf` (ISASF minS over the whole episode) is close to 0 for every arm; "
-          f"`worst_post` skips {TRANSIENT} steps after the event for that reason; and with only "
-          f"that one zero step the recovery rule gives a latency of {floor:g} steps, so "
-          f"{floor:g} is the fastest possible recovery here, not a measured delay.",
+          f"`worst_isasf` (ISASF minS over the whole episode) is close to 0 for every arm, as it "
+          f"is for every ISASF E1/E3 episode; `worst_post` skips the event step and the next "
+          f"({TRANSIENT} steps) for that reason. The recovery clock starts {RECOVERY_OFFSET} step "
+          f"after the event, where ISASF's starts (its switch step is one row after the dip), so "
+          f"the dip alone gives a latency of {dip_only:g}.",
           "- A3 in C1 is a forced no-op: its label is \"none\" in R0 and `agents/oracle_ddqn.py` "
           "(lines 48-49) returns a no-op without calling the network. Its zero blocking in C1 holds "
           "by construction, and its C1 inference and rule-installation times measure a branch.",
@@ -794,8 +802,8 @@ def write_summary(path, notes, em, iq, tests, rec, within, fig_notes, args):
           "- `n (non-zero)`: seeds whose difference is not zero. The exact test uses only those.",
           "", "Worst window and recovery follow ISASF `scripts/analyze.py`: minS from step "
           f"{TRANSIENT}; recovery when the {ROLL}-step rolling mean of S returns to {RECOVER_FRAC} x the "
-          f"mean of the {BASELINE_WIN} steps before the event and holds {HOLD} steps (latency from the "
-          "event; censored if never). `worst_post` additionally skips the "
+          f"mean of the {BASELINE_WIN} steps before the start and holds {HOLD} steps; the start is "
+          f"event + {RECOVERY_OFFSET}, ISASF's switch step (censored if never). `worst_post` additionally skips the "
           f"{TRANSIENT} steps after the event, where every arm loses its probes to the restart.", ""]
     L += ["## Planned parameters (plan Section 7; IQM over seeds, bootstrap 95% interval)", ""]
     for cond in CONDS:

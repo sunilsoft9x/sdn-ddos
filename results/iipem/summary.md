@@ -11,12 +11,12 @@ Episodes: 400; seeds per arm: C1_surge A2: 10, C1_surge A1: 10, C1_surge A3: 10,
 
 ## Reading the results
 
-- The event restarts the probe clients, so S = 0 at the event step in 86% to 100% of episodes per arm and condition. Consequences: `worst_isasf` (ISASF minS over the whole episode) is close to 0 for every arm; `worst_post` skips 2 steps after the event for that reason; and with only that one zero step the recovery rule gives a latency of 5 steps, so 5 is the fastest possible recovery here, not a measured delay.
+- The event restarts the probe clients, so S = 0 at the event step in 86% to 100% of episodes per arm and condition. Consequences: `worst_isasf` (ISASF minS over the whole episode) is close to 0 for every arm, as it is for every ISASF E1/E3 episode; `worst_post` skips the event step and the next (2 steps) for that reason. The recovery clock starts 1 step after the event, where ISASF's starts (its switch step is one row after the dip), so the dip alone gives a latency of 0.
 - A3 in C1 is a forced no-op: its label is "none" in R0 and `agents/oracle_ddqn.py` (lines 48-49) returns a no-op without calling the network. Its zero blocking in C1 holds by construction, and its C1 inference and rule-installation times measure a branch.
 - Collateral is a share of the active rules. Report the count of blocked benign hosts (exploratory table) beside it: the share and the count can move by different amounts.
 - `n (non-zero)`: seeds whose difference is not zero. The exact test uses only those.
 
-Worst window and recovery follow ISASF `scripts/analyze.py`: minS from step 2; recovery when the 5-step rolling mean of S returns to 0.95 x the mean of the 20 steps before the event and holds 5 steps (latency from the event; censored if never). `worst_post` additionally skips the 2 steps after the event, where every arm loses its probes to the restart.
+Worst window and recovery follow ISASF `scripts/analyze.py`: minS from step 2; recovery when the 5-step rolling mean of S returns to 0.95 x the mean of the 20 steps before the start and holds 5 steps; the start is event + 1, ISASF's switch step (censored if never). `worst_post` additionally skips the 2 steps after the event, where every arm loses its probes to the restart.
 
 ## Planned parameters (plan Section 7; IQM over seeds, bootstrap 95% interval)
 
@@ -27,7 +27,7 @@ Worst window and recovery follow ISASF `scripts/analyze.py`: minS from step 2; r
 | Mean service after the event | 0.980 [0.980, 0.982] | 0.981 [0.980, 0.983] | 0.980 [0.980, 0.980] | 0.980 [0.980, 0.980] |
 | Worst-window service after the event | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] |
 | Worst-window service, ISASF minS (whole episode) | 0.000 [0.000, 0.100] | 0.033 [0.000, 0.167] | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] |
-| Recovery latency, recovered episodes (steps) | 5.000 [4.500, 5.000] | 4.833 [4.167, 5.000] | 5.000 [5.000, 5.000] | 5.000 [5.000, 5.000] |
+| Recovery latency, recovered episodes (steps) | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] |
 | Collateral after the event | 0.629 [0.521, 0.815] | 0.627 [0.445, 0.866] | 0.000 [0.000, 0.000] | 0.603 [0.586, 0.618] |
 | Collateral on other benign hosts after the event | 0.290 [0.168, 0.521] | 0.317 [0.145, 0.577] | 0.000 [0.000, 0.000] | 0.313 [0.296, 0.329] |
 | Delivery from other benign hosts (post/pre) | 0.882 [0.805, 0.933] | 0.855 [0.732, 0.901] | 0.915 [0.871, 0.950] | 0.900 [0.863, 0.936] |
@@ -44,7 +44,7 @@ Worst window and recovery follow ISASF `scripts/analyze.py`: minS from step 2; r
 | Mean service after the event | 0.958 [0.950, 0.969] | 0.962 [0.954, 0.973] | 0.957 [0.928, 0.970] | 0.929 [0.917, 0.941] |
 | Worst-window service after the event | 0.367 [0.167, 0.667] | 0.400 [0.200, 0.767] | 0.233 [0.067, 0.433] | 0.100 [0.000, 0.200] |
 | Worst-window service, ISASF minS (whole episode) | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.100] | 0.000 [0.000, 0.033] | 0.000 [0.000, 0.000] |
-| Recovery latency, recovered episodes (steps) | 5.533 [4.533, 6.300] | 5.867 [5.133, 6.867] | 5.767 [4.700, 7.200] | 8.133 [7.167, 10.033] |
+| Recovery latency, recovered episodes (steps) | 0.400 [0.000, 1.400] | 1.500 [0.300, 2.400] | 2.533 [1.200, 4.467] | 2.350 [0.800, 4.033] |
 | Collateral after the event | 0.253 [0.193, 0.470] | 0.278 [0.164, 0.541] | 0.103 [0.088, 0.116] | 0.307 [0.293, 0.324] |
 | Collateral on other benign hosts after the event | 0.136 [0.086, 0.268] | 0.146 [0.073, 0.324] | 0.043 [0.032, 0.052] | 0.193 [0.179, 0.210] |
 | Delivery from other benign hosts (post/pre) | 0.862 [0.798, 0.901] | 0.838 [0.680, 0.916] | 0.891 [0.856, 0.931] | 0.884 [0.850, 0.928] |
@@ -69,9 +69,9 @@ Worst window and recovery follow ISASF `scripts/analyze.py`: minS from step 2; r
 | C1_surge | worst_isasf | A2 vs A1 | 10 (5) | 0.000 | 0.7500 | 1.0000 | -0.33 |
 | C1_surge | worst_isasf | A2 vs A3 | 10 (2) | 0.000 | 0.5000 | 1.0000 | 1.00 |
 | C1_surge | worst_isasf | A2 vs static | 10 (2) | 0.000 | 0.5000 | 1.0000 | 1.00 |
-| C1_surge | adapt_latency | A2 vs A1 | 10 (5) | 0.000 | 0.7500 | 1.0000 | 0.33 |
-| C1_surge | adapt_latency | A2 vs A3 | 10 (2) | 0.000 | 0.5000 | 1.0000 | -1.00 |
-| C1_surge | adapt_latency | A2 vs static | 10 (2) | 0.000 | 0.5000 | 1.0000 | -1.00 |
+| C1_surge | adapt_latency | A2 vs A1 | 10 (0) | 0.000 | n/a | n/a | n/a |
+| C1_surge | adapt_latency | A2 vs A3 | 10 (0) | 0.000 | n/a | n/a | n/a |
+| C1_surge | adapt_latency | A2 vs static | 10 (0) | 0.000 | n/a | n/a | n/a |
 | C1_surge | collateral_post | A2 vs A1 | 10 (10) | 0.022 | 1.0000 | 1.0000 | -0.02 |
 | C1_surge | collateral_post | A2 vs A3 | 10 (10) | 0.598 | 0.0020 | 0.0059 | 1.00 |
 | C1_surge | collateral_post | A2 vs static | 10 (10) | -0.010 | 0.5566 | 1.0000 | 0.24 |
@@ -105,9 +105,9 @@ Worst window and recovery follow ISASF `scripts/analyze.py`: minS from step 2; r
 | C2_swap | worst_isasf | A2 vs A1 | 10 (2) | 0.000 | 0.5000 | 1.0000 | -1.00 |
 | C2_swap | worst_isasf | A2 vs A3 | 10 (1) | 0.000 | 1.0000 | 1.0000 | -1.00 |
 | C2_swap | worst_isasf | A2 vs static | 10 (0) | 0.000 | n/a | n/a | n/a |
-| C2_swap | adapt_latency | A2 vs A1 | 10 (9) | -1.000 | 0.2383 | 0.4766 | -0.47 |
-| C2_swap | adapt_latency | A2 vs A3 | 10 (10) | -0.300 | 0.3340 | 0.4766 | -0.36 |
-| C2_swap | adapt_latency | A2 vs static | 10 (10) | -2.800 | 0.0020 | 0.0059 | -1.00 |
+| C2_swap | adapt_latency | A2 vs A1 | 10 (7) | -0.600 | 0.1875 | 0.1875 | -0.61 |
+| C2_swap | adapt_latency | A2 vs A3 | 10 (9) | -1.800 | 0.0664 | 0.1875 | -0.71 |
+| C2_swap | adapt_latency | A2 vs static | 10 (7) | -1.200 | 0.0625 | 0.1875 | -0.86 |
 | C2_swap | collateral_post | A2 vs A1 | 10 (10) | 0.004 | 0.6953 | 1.0000 | 0.16 |
 | C2_swap | collateral_post | A2 vs A3 | 10 (10) | 0.131 | 0.0020 | 0.0059 | 1.00 |
 | C2_swap | collateral_post | A2 vs static | 10 (10) | -0.085 | 0.5566 | 1.0000 | -0.24 |

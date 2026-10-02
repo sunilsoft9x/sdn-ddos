@@ -8,9 +8,9 @@ C1_surge,planned,worst_post,Worst-window service after the event,A2 vs static,10
 C1_surge,planned,worst_isasf,"Worst-window service, ISASF minS (whole episode)",A2 vs A1,10,5,0.0,5.0,0.75,-0.3333333333333333,True,1.0,False
 C1_surge,planned,worst_isasf,"Worst-window service, ISASF minS (whole episode)",A2 vs A3,10,2,0.0,3.0,0.5,1.0,True,1.0,False
 C1_surge,planned,worst_isasf,"Worst-window service, ISASF minS (whole episode)",A2 vs static,10,2,0.0,3.0,0.5,1.0,True,1.0,False
-C1_surge,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A2 vs A1,10,5,0.0,10.0,0.75,0.3333333333333333,False,1.0,False
-C1_surge,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A2 vs A3,10,2,0.0,0.0,0.5,-1.0,False,1.0,False
-C1_surge,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A2 vs static,10,2,0.0,0.0,0.5,-1.0,False,1.0,False
+C1_surge,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A2 vs A1,10,0,0.0,0.0,,,False,,False
+C1_surge,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A2 vs A3,10,0,0.0,0.0,,,False,,False
+C1_surge,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A2 vs static,10,0,0.0,0.0,,,False,,False
 C1_surge,planned,collateral_post,Collateral after the event,A2 vs A1,10,10,0.02199999999999991,27.0,1.0,-0.01818181818181818,False,1.0,False
 C1_surge,planned,collateral_post,Collateral after the event,A2 vs A3,10,10,0.5979999999999999,55.0,0.001953125,1.0,False,0.005859375,True
 C1_surge,planned,collateral_post,Collateral after the event,A2 vs static,10,10,-0.010000000000000009,34.0,0.556640625,0.23636363636363636,False,1.0,False
@@ -59,9 +59,9 @@ C2_swap,planned,worst_post,Worst-window service after the event,A2 vs static,10,
 C2_swap,planned,worst_isasf,"Worst-window service, ISASF minS (whole episode)",A2 vs A1,10,2,0.0,0.0,0.5,-1.0,True,1.0,False
 C2_swap,planned,worst_isasf,"Worst-window service, ISASF minS (whole episode)",A2 vs A3,10,1,0.0,0.0,1.0,-1.0,True,1.0,False
 C2_swap,planned,worst_isasf,"Worst-window service, ISASF minS (whole episode)",A2 vs static,10,0,0.0,0.0,,,True,,False
-C2_swap,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A2 vs A1,10,9,-1.0,12.0,0.23828125,-0.4666666666666667,False,0.4765625,False
-C2_swap,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A2 vs A3,10,10,-0.2999999999999998,17.5,0.333984375,-0.36363636363636365,False,0.4765625,False
-C2_swap,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A2 vs static,10,10,-2.8000000000000007,0.0,0.001953125,-1.0,False,0.005859375,True
+C2_swap,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A2 vs A1,10,7,-0.6,5.5,0.1875,-0.6071428571428571,False,0.1875,False
+C2_swap,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A2 vs A3,10,9,-1.7999999999999998,6.5,0.06640625,-0.7111111111111111,False,0.1875,False
+C2_swap,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A2 vs static,10,7,-1.2,2.0,0.0625,-0.8571428571428571,False,0.1875,False
 C2_swap,planned,collateral_post,Collateral after the event,A2 vs A1,10,10,0.0043437229437229136,32.0,0.6953125,0.16363636363636364,False,1.0,False
 C2_swap,planned,collateral_post,Collateral after the event,A2 vs A3,10,10,0.13119523809523806,55.0,0.001953125,1.0,False,0.005859375,True
 C2_swap,planned,collateral_post,Collateral after the event,A2 vs static,10,10,-0.08548809523809527,21.0,0.556640625,-0.23636363636363636,False,1.0,False
