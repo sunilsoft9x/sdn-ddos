@@ -149,6 +149,25 @@ def start_benign(net, cfg, benign_hosts: list[str], rng, duration_s: int = 120,
     return handles
 
 
+def restart_benign_servers(net, cfg, n_ports: int) -> None:
+    """Kill and relaunch the benign iperf3 servers (ports BENIGN_BASE_PORT+).
+
+    The servers used to live for the whole run while their clients were killed
+    and restarted every episode; over a long run they stopped accepting one by
+    one and the benign hosts went silent (IIPEM status, step 20). Restarting
+    them together with the clients makes every episode start from fresh
+    servers. Port 5201 and the HTTP server are not touched.
+    """
+    victim = _host(net, cfg["topology"]["victim"]["name"])
+    pat = "iperf3 -s -p 50[0-9][0-9]"
+    victim.cmd(f"pkill -9 -f '{pat}' 2>/dev/null; "
+               f"for i in $(seq 40); do pgrep -f '{pat}' >/dev/null || break; "
+               f"sleep 0.05; done")
+    for i in range(n_ports):
+        victim.popen(f"iperf3 -s -p {BENIGN_BASE_PORT + i}", shell=True)
+    time.sleep(0.3)   # listening before the clients connect
+
+
 def stop_all(net) -> None:
     """Kill every generator AND probe client on every host.
 

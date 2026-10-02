@@ -149,6 +149,15 @@ def _write(rows, path):
         pd.DataFrame(rows).to_parquet(path, index=False)
 
 
+def benign_live(env, steps: list[dict], deliv: list[dict], min_bytes: int = 1000):
+    """(live, total) background hosts before the event: hosts that are neither
+    probes nor initial attackers and delivered more than min_bytes."""
+    att0 = {a for a in steps[0]["attackers"].split(",") if a} if steps else set()
+    bg = {env._src_ip(h) for h in env.candidate_attackers if h not in att0}
+    live = {d["src"] for d in deliv if d["phase"] == "pre" and d["bytes"] > min_bytes}
+    return len(bg & live), len(bg)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--shard", default="0/1", help="i/n: this VM runs shard i of n (split by seed)")
@@ -196,8 +205,11 @@ def main() -> int:
             deliv += d
             _write(rows, out_steps)
             _write(deliv, out_deliv)
+            live, total = benign_live(env, r, d)
+            warn = "  WARNING: benign traffic missing" if live * 2 < total else ""
             print(f"  [{k + 1}/{len(todo)}] {job['cond']} {job['agent']:6s} seed {job['seed']} ep {job['ep']}"
-                  f" - {len(r)} steps, {(time.time() - started) / 60:.1f} min", flush=True)
+                  f" - {len(r)} steps, {(time.time() - started) / 60:.1f} min,"
+                  f" benign live {live}/{total}{warn}", flush=True)
     finally:
         env.close()
         _write(rows, out_steps)

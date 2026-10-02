@@ -272,6 +272,7 @@ class TestbedEnv(_BASE):
         self.detector.reset()
 
         traffic.stop_all(self.net)
+        traffic.restart_benign_servers(self.net, self.cfg, len(self.candidate_attackers))
         self._clear_mitigation()
 
         options = options or {}
@@ -348,6 +349,7 @@ class TestbedEnv(_BASE):
         if self._iipem_log:
             self._acct_pre = self._acct_read(zero=True)
         traffic.stop_all(self.net)
+        traffic.restart_benign_servers(self.net, self.cfg, len(self.candidate_attackers))
         if self._event == "swap":
             self._former_attackers = list(self._attackers)
             self._attackers = list(self._next_attackers)
