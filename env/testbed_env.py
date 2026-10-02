@@ -478,6 +478,7 @@ class TestbedEnv(_BASE):
         self._t += 1
         if self._switch_step is not None and self._t == self._switch_step:
             traffic.stop_all(self.net)
+            traffic.restart_benign_servers(self.net, self.cfg, len(self.candidate_attackers))
             self._regime = self._switch_to
             self._epoch = traffic.regime_epoch()
             traffic.start_regime(self.net, self._regime, self._attackers,
