@@ -1,0 +1,7 @@
+cond,comparison,ref_never,ref_n,other_never,other_n,p_fisher,ref_latency_median,other_latency_median,p_holm
+C1_surge,A2 vs A1,0,50,0,50,1.0,5.0,5.0,1.0
+C1_surge,A2 vs A3,0,50,0,50,1.0,5.0,5.0,1.0
+C1_surge,A2 vs static,0,50,0,50,1.0,5.0,5.0,1.0
+C2_swap,A2 vs A1,0,50,0,50,1.0,5.0,5.0,1.0
+C2_swap,A2 vs A3,0,50,0,50,1.0,5.0,5.0,1.0
+C2_swap,A2 vs static,0,50,1,50,1.0,5.0,7.0,1.0

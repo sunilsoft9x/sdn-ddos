@@ -1,0 +1,109 @@
+cond,family,parameter,label,comparison,n_pairs,n_nonzero,median_diff,W_plus,p_exact,rank_biserial,higher_is_better,p_holm,significant_0.05
+C1_surge,planned,service_post,Mean service after the event,A2 vs A1,10,5,0.0,5.0,0.75,-0.3333333333333333,True,1.0,False
+C1_surge,planned,service_post,Mean service after the event,A2 vs A3,10,2,0.0,3.0,0.5,1.0,True,1.0,False
+C1_surge,planned,service_post,Mean service after the event,A2 vs static,10,2,0.0,3.0,0.5,1.0,True,1.0,False
+C1_surge,planned,worst_post,Worst-window service after the event,A2 vs A1,10,0,0.0,0.0,,,True,,False
+C1_surge,planned,worst_post,Worst-window service after the event,A2 vs A3,10,0,0.0,0.0,,,True,,False
+C1_surge,planned,worst_post,Worst-window service after the event,A2 vs static,10,0,0.0,0.0,,,True,,False
+C1_surge,planned,worst_isasf,"Worst-window service, ISASF minS (whole episode)",A2 vs A1,10,5,0.0,5.0,0.75,-0.3333333333333333,True,1.0,False
+C1_surge,planned,worst_isasf,"Worst-window service, ISASF minS (whole episode)",A2 vs A3,10,2,0.0,3.0,0.5,1.0,True,1.0,False
+C1_surge,planned,worst_isasf,"Worst-window service, ISASF minS (whole episode)",A2 vs static,10,2,0.0,3.0,0.5,1.0,True,1.0,False
+C1_surge,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A2 vs A1,10,5,0.0,10.0,0.75,0.3333333333333333,False,1.0,False
+C1_surge,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A2 vs A3,10,2,0.0,0.0,0.5,-1.0,False,1.0,False
+C1_surge,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A2 vs static,10,2,0.0,0.0,0.5,-1.0,False,1.0,False
+C1_surge,planned,collateral_post,Collateral after the event,A2 vs A1,10,10,0.02199999999999991,27.0,1.0,-0.01818181818181818,False,1.0,False
+C1_surge,planned,collateral_post,Collateral after the event,A2 vs A3,10,10,0.5979999999999999,55.0,0.001953125,1.0,False,0.005859375,True
+C1_surge,planned,collateral_post,Collateral after the event,A2 vs static,10,10,-0.010000000000000009,34.0,0.556640625,0.23636363636363636,False,1.0,False
+C1_surge,planned,collateral_other_post,Collateral on other benign hosts after the event,A2 vs A1,10,10,-0.053349206349206355,19.0,0.431640625,-0.3090909090909091,False,0.86328125,False
+C1_surge,planned,collateral_other_post,Collateral on other benign hosts after the event,A2 vs A3,10,10,0.2611031746031746,55.0,0.001953125,1.0,False,0.005859375,True
+C1_surge,planned,collateral_other_post,Collateral on other benign hosts after the event,A2 vs static,10,10,-0.04735714285714285,27.0,1.0,-0.01818181818181818,False,1.0,False
+C1_surge,planned,benign_delivery_other,Delivery from other benign hosts (post/pre),A2 vs A1,10,10,0.006031324663308024,37.0,0.375,0.34545454545454546,True,0.75,False
+C1_surge,planned,benign_delivery_other,Delivery from other benign hosts (post/pre),A2 vs A3,10,10,-0.009300306940131842,9.0,0.064453125,-0.6727272727272727,True,0.193359375,False
+C1_surge,planned,benign_delivery_other,Delivery from other benign hosts (post/pre),A2 vs static,10,10,0.0016298025340222289,26.0,0.921875,-0.05454545454545454,True,0.921875,False
+C1_surge,planned,surge_block_share,Share of post steps with a rule on a surge host,A2 vs A1,10,10,0.021999999999999964,31.0,0.748046875,0.12727272727272726,,0.748046875,False
+C1_surge,planned,surge_block_share,Share of post steps with a rule on a surge host,A2 vs A3,10,10,0.562,55.0,0.001953125,1.0,,0.005859375,True
+C1_surge,planned,surge_block_share,Share of post steps with a rule on a surge host,A2 vs static,10,8,0.043999999999999984,27.0,0.25,0.5,,0.5,False
+C1_surge,planned,surge_delivery,Surge-host delivery (share of 4.0 Mbps offered),A2 vs A1,10,10,0.024783844104639463,31.0,0.76953125,0.12727272727272726,,1.0,False
+C1_surge,planned,surge_delivery,Surge-host delivery (share of 4.0 Mbps offered),A2 vs A3,10,10,-0.5030767070468607,0.0,0.001953125,-1.0,,0.005859375,True
+C1_surge,planned,surge_delivery,Surge-host delivery (share of 4.0 Mbps offered),A2 vs static,10,10,-0.014572842343038489,21.0,0.556640625,-0.23636363636363636,,1.0,False
+C1_surge,planned,infer_ms_median,"Inference time, median (ms)",A2 vs A1,10,10,0.3593703964725137,55.0,0.001953125,1.0,False,0.005859375,True
+C1_surge,planned,infer_ms_median,"Inference time, median (ms)",A2 vs A3,10,10,0.6829775025835261,55.0,0.001953125,1.0,False,0.005859375,True
+C1_surge,planned,infer_ms_median,"Inference time, median (ms)",A2 vs static,10,10,0.6641659987508319,55.0,0.001953125,1.0,False,0.005859375,True
+C1_surge,planned,apply_ms_median,"Rule installation time, median (ms)",A2 vs A1,10,10,-0.5486929025209974,10.0,0.083984375,-0.6363636363636364,False,0.083984375,False
+C1_surge,planned,apply_ms_median,"Rule installation time, median (ms)",A2 vs A3,10,10,4.103555549227167,55.0,0.001953125,1.0,False,0.005859375,True
+C1_surge,planned,apply_ms_median,"Rule installation time, median (ms)",A2 vs static,10,10,-4.676585199922556,0.0,0.001953125,-1.0,False,0.005859375,True
+C1_surge,planned,ctl_cpu_mean,"Controller CPU, mean (%)",A2 vs A1,10,10,-0.12225373900536662,24.0,0.76953125,-0.12727272727272726,False,0.76953125,False
+C1_surge,planned,ctl_cpu_mean,"Controller CPU, mean (%)",A2 vs A3,10,10,0.5937105341279572,55.0,0.001953125,1.0,False,0.005859375,True
+C1_surge,planned,ctl_cpu_mean,"Controller CPU, mean (%)",A2 vs static,10,10,-0.32060882093287413,1.0,0.00390625,-0.9636363636363636,False,0.0078125,True
+C1_surge,exploratory,other_blocked_post,"Other benign hosts with a rule, per step, after the event",A2 vs A1,10,10,-0.08999999999999989,22.0,0.625,-0.2,False,1.0,False
+C1_surge,exploratory,other_blocked_post,"Other benign hosts with a rule, per step, after the event",A2 vs A3,10,10,0.896,55.0,0.001953125,1.0,False,0.005859375,True
+C1_surge,exploratory,other_blocked_post,"Other benign hosts with a rule, per step, after the event",A2 vs static,10,10,-0.1800000000000001,29.0,0.921875,0.05454545454545454,False,1.0,False
+C1_surge,exploratory,other_host_block_post,"Per-host share of post steps with a rule, other benign hosts",A2 vs A1,10,10,-0.012857142857142855,22.0,0.625,-0.2,False,1.0,False
+C1_surge,exploratory,other_host_block_post,"Per-host share of post steps with a rule, other benign hosts",A2 vs A3,10,10,0.128,55.0,0.001953125,1.0,False,0.005859375,True
+C1_surge,exploratory,other_host_block_post,"Per-host share of post steps with a rule, other benign hosts",A2 vs static,10,10,-0.02571428571428571,29.0,0.921875,0.05454545454545454,False,1.0,False
+C1_surge,exploratory,surge_host_block_pre,"Per-host share of pre steps with a rule, future surge hosts",A2 vs A1,10,10,-0.046875,10.5,0.08984375,-0.6181818181818182,,0.1796875,False
+C1_surge,exploratory,surge_host_block_pre,"Per-host share of pre steps with a rule, future surge hosts",A2 vs A3,10,9,0.07291666666666666,45.0,0.00390625,1.0,,0.01171875,True
+C1_surge,exploratory,surge_host_block_pre,"Per-host share of pre steps with a rule, future surge hosts",A2 vs static,10,10,-0.12187499999999997,19.0,0.431640625,-0.3090909090909091,,0.431640625,False
+C1_surge,exploratory,surge_host_block_post,"Per-host share of post steps with a rule, surge hosts",A2 vs A1,10,10,0.026999999999999996,31.5,0.71484375,0.14545454545454545,,0.71484375,False
+C1_surge,exploratory,surge_host_block_post,"Per-host share of post steps with a rule, surge hosts",A2 vs A3,10,10,0.517,55.0,0.001953125,1.0,,0.005859375,True
+C1_surge,exploratory,surge_host_block_post,"Per-host share of post steps with a rule, surge hosts",A2 vs static,10,10,0.05000000000000002,45.0,0.083984375,0.6363636363636364,,0.16796875,False
+C1_surge,exploratory,surge_rise_minus_other,Rise in surge-host blocking minus rise in other-benign blocking (post - pre),A2 vs A1,10,10,0.06719642857142855,48.0,0.037109375,0.7454545454545455,,0.07421875,False
+C1_surge,exploratory,surge_rise_minus_other,Rise in surge-host blocking minus rise in other-benign blocking (post - pre),A2 vs A3,10,10,0.34248214285714285,55.0,0.001953125,1.0,,0.005859375,True
+C1_surge,exploratory,surge_rise_minus_other,Rise in surge-host blocking minus rise in other-benign blocking (post - pre),A2 vs static,10,10,0.03911904761904764,42.0,0.16015625,0.5272727272727272,,0.16015625,False
+C2_swap,planned,service_post,Mean service after the event,A2 vs A1,10,8,-0.0019999999999999463,14.0,0.65625,-0.2222222222222222,True,1.0,False
+C2_swap,planned,service_post,Mean service after the event,A2 vs A3,10,9,0.0020000000000000573,28.0,0.546875,0.24444444444444444,True,1.0,False
+C2_swap,planned,service_post,Mean service after the event,A2 vs static,10,9,0.028000000000000025,44.0,0.0078125,0.9555555555555556,True,0.0234375,True
+C2_swap,planned,worst_post,Worst-window service after the event,A2 vs A1,10,4,0.0,4.0,0.875,-0.2,True,0.875,False
+C2_swap,planned,worst_post,Worst-window service after the event,A2 vs A3,10,8,0.1,26.5,0.28125,0.4722222222222222,True,0.5625,False
+C2_swap,planned,worst_post,Worst-window service after the event,A2 vs static,10,9,0.2,39.0,0.06640625,0.7333333333333333,True,0.19921875,False
+C2_swap,planned,worst_isasf,"Worst-window service, ISASF minS (whole episode)",A2 vs A1,10,2,0.0,0.0,0.5,-1.0,True,1.0,False
+C2_swap,planned,worst_isasf,"Worst-window service, ISASF minS (whole episode)",A2 vs A3,10,1,0.0,0.0,1.0,-1.0,True,1.0,False
+C2_swap,planned,worst_isasf,"Worst-window service, ISASF minS (whole episode)",A2 vs static,10,0,0.0,0.0,,,True,,False
+C2_swap,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A2 vs A1,10,9,-1.0,12.0,0.23828125,-0.4666666666666667,False,0.4765625,False
+C2_swap,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A2 vs A3,10,10,-0.2999999999999998,17.5,0.333984375,-0.36363636363636365,False,0.4765625,False
+C2_swap,planned,adapt_latency,"Recovery latency, recovered episodes (steps)",A2 vs static,10,10,-2.8000000000000007,0.0,0.001953125,-1.0,False,0.005859375,True
+C2_swap,planned,collateral_post,Collateral after the event,A2 vs A1,10,10,0.0043437229437229136,32.0,0.6953125,0.16363636363636364,False,1.0,False
+C2_swap,planned,collateral_post,Collateral after the event,A2 vs A3,10,10,0.13119523809523806,55.0,0.001953125,1.0,False,0.005859375,True
+C2_swap,planned,collateral_post,Collateral after the event,A2 vs static,10,10,-0.08548809523809527,21.0,0.556640625,-0.23636363636363636,False,1.0,False
+C2_swap,planned,collateral_other_post,Collateral on other benign hosts after the event,A2 vs A1,10,10,-0.011425396825396818,23.0,0.6953125,-0.16363636363636364,False,1.0,False
+C2_swap,planned,collateral_other_post,Collateral on other benign hosts after the event,A2 vs A3,10,10,0.07532380952380953,55.0,0.001953125,1.0,False,0.005859375,True
+C2_swap,planned,collateral_other_post,Collateral on other benign hosts after the event,A2 vs static,10,10,-0.08463412698412698,21.0,0.556640625,-0.23636363636363636,False,1.0,False
+C2_swap,planned,benign_delivery_other,Delivery from other benign hosts (post/pre),A2 vs A1,10,10,-0.0016769378344078656,28.0,1.0,0.01818181818181818,True,1.0,False
+C2_swap,planned,benign_delivery_other,Delivery from other benign hosts (post/pre),A2 vs A3,10,10,-0.017535151198744325,6.0,0.02734375,-0.7818181818181819,True,0.08203125,False
+C2_swap,planned,benign_delivery_other,Delivery from other benign hosts (post/pre),A2 vs static,10,10,-0.019030618089612705,12.0,0.130859375,-0.5636363636363636,True,0.26171875,False
+C2_swap,planned,stale_steps,Post steps with a rule on a former attacker,A2 vs A1,10,10,-0.4999999999999991,27.0,1.0,-0.01818181818181818,False,1.0,False
+C2_swap,planned,stale_steps,Post steps with a rule on a former attacker,A2 vs A3,10,10,9.299999999999999,54.0,0.00390625,0.9636363636363636,False,0.01171875,True
+C2_swap,planned,stale_steps,Post steps with a rule on a former attacker,A2 vs static,10,10,-2.3000000000000007,25.0,0.845703125,-0.09090909090909091,False,1.0,False
+C2_swap,planned,stale_clear_latency,Steps until no rule on a former attacker,A2 vs A1,10,10,1.3000000000000003,38.0,0.310546875,0.38181818181818183,False,0.310546875,False
+C2_swap,planned,stale_clear_latency,Steps until no rule on a former attacker,A2 vs A3,10,10,4.7,54.0,0.00390625,0.9636363636363636,False,0.01171875,True
+C2_swap,planned,stale_clear_latency,Steps until no rule on a former attacker,A2 vs static,10,10,1.9000000000000004,49.5,0.021484375,0.8,False,0.04296875,True
+C2_swap,planned,former_attacker_delivery,Former-attacker delivery (vs benign level),A2 vs A1,10,10,-0.0173834820448725,20.0,0.4921875,-0.2727272727272727,True,0.4921875,False
+C2_swap,planned,former_attacker_delivery,Former-attacker delivery (vs benign level),A2 vs A3,10,10,-0.10343546549270738,1.0,0.00390625,-0.9636363636363636,True,0.01171875,True
+C2_swap,planned,former_attacker_delivery,Former-attacker delivery (vs benign level),A2 vs static,10,10,-0.07045656545562068,6.0,0.02734375,-0.7818181818181819,True,0.0546875,False
+C2_swap,planned,attack_delivery_ratio,Attack delivery (post/pre),A2 vs A1,10,10,-0.006617214445251374,27.0,1.0,-0.01818181818181818,False,1.0,False
+C2_swap,planned,attack_delivery_ratio,Attack delivery (post/pre),A2 vs A3,10,10,-0.0986162750329726,8.0,0.048828125,-0.7090909090909091,False,0.146484375,False
+C2_swap,planned,attack_delivery_ratio,Attack delivery (post/pre),A2 vs static,10,10,-0.014375902563196763,21.0,0.556640625,-0.23636363636363636,False,1.0,False
+C2_swap,planned,infer_ms_median,"Inference time, median (ms)",A2 vs A1,10,10,0.3696943065733649,55.0,0.001953125,1.0,False,0.005859375,True
+C2_swap,planned,infer_ms_median,"Inference time, median (ms)",A2 vs A3,10,10,0.34309600305277854,55.0,0.001953125,1.0,False,0.005859375,True
+C2_swap,planned,infer_ms_median,"Inference time, median (ms)",A2 vs static,10,10,0.6766750026145019,55.0,0.001953125,1.0,False,0.005859375,True
+C2_swap,planned,apply_ms_median,"Rule installation time, median (ms)",A2 vs A1,10,10,-2.543213750323048,18.0,0.375,-0.34545454545454546,False,0.75,False
+C2_swap,planned,apply_ms_median,"Rule installation time, median (ms)",A2 vs A3,10,10,-10.114692299976014,3.0,0.009765625,-0.8909090909090909,False,0.029296875,True
+C2_swap,planned,apply_ms_median,"Rule installation time, median (ms)",A2 vs static,10,10,-0.6420875011826865,26.0,0.921875,-0.05454545454545454,False,0.921875,False
+C2_swap,planned,ctl_cpu_mean,"Controller CPU, mean (%)",A2 vs A1,10,10,-0.1405805665240627,20.0,0.4921875,-0.2727272727272727,False,0.984375,False
+C2_swap,planned,ctl_cpu_mean,"Controller CPU, mean (%)",A2 vs A3,10,10,-0.15893356249514112,13.0,0.16015625,-0.5272727272727272,False,0.48046875,False
+C2_swap,planned,ctl_cpu_mean,"Controller CPU, mean (%)",A2 vs static,10,10,0.2404611251252875,29.0,0.921875,0.05454545454545454,False,0.984375,False
+C2_swap,exploratory,other_blocked_post,"Other benign hosts with a rule, per step, after the event",A2 vs A1,10,10,-0.02799999999999997,21.0,0.556640625,-0.23636363636363636,False,1.0,False
+C2_swap,exploratory,other_blocked_post,"Other benign hosts with a rule, per step, after the event",A2 vs A3,10,10,0.3660000000000001,55.0,0.001953125,1.0,False,0.005859375,True
+C2_swap,exploratory,other_blocked_post,"Other benign hosts with a rule, per step, after the event",A2 vs static,10,10,-0.428,22.0,0.609375,-0.2,False,1.0,False
+C2_swap,exploratory,other_host_block_post,"Per-host share of post steps with a rule, other benign hosts",A2 vs A1,10,10,-0.004666666666666666,21.0,0.556640625,-0.23636363636363636,False,1.0,False
+C2_swap,exploratory,other_host_block_post,"Per-host share of post steps with a rule, other benign hosts",A2 vs A3,10,10,0.061,55.0,0.001953125,1.0,False,0.005859375,True
+C2_swap,exploratory,other_host_block_post,"Per-host share of post steps with a rule, other benign hosts",A2 vs static,10,10,-0.07133333333333333,22.0,0.609375,-0.2,False,1.0,False
+C2_swap,exploratory,held_steps,Post steps with a rule held over from before the swap,A2 vs A1,10,9,0.3000000000000001,27.0,0.65234375,0.2,False,0.89453125,False
+C2_swap,exploratory,held_steps,Post steps with a rule held over from before the swap,A2 vs A3,10,9,2.6999999999999997,43.5,0.01171875,0.9333333333333333,False,0.03515625,True
+C2_swap,exploratory,held_steps,Post steps with a rule held over from before the swap,A2 vs static,10,10,-2.220446049250313e-16,35.5,0.447265625,0.2909090909090909,False,0.89453125,False
+C2_swap,exploratory,reflag_only_steps,Post steps with only re-added rules on former attackers,A2 vs A1,10,10,-1.0000000000000004,25.0,0.845703125,-0.09090909090909091,False,0.845703125,False
+C2_swap,exploratory,reflag_only_steps,Post steps with only re-added rules on former attackers,A2 vs A3,10,10,5.2,43.0,0.130859375,0.5636363636363636,False,0.26171875,False
+C2_swap,exploratory,reflag_only_steps,Post steps with only re-added rules on former attackers,A2 vs static,10,10,-3.6000000000000005,0.0,0.001953125,-1.0,False,0.005859375,True
+C2_swap,exploratory,former_reflag_host_rate,"Per-host rate of re-added rules, former attackers",A2 vs A1,10,10,-0.016666666666666635,22.0,0.625,-0.2,False,0.625,False
+C2_swap,exploratory,former_reflag_host_rate,"Per-host rate of re-added rules, former attackers",A2 vs A3,10,10,0.04399999999999999,41.0,0.181640625,0.4909090909090909,False,0.36328125,False
+C2_swap,exploratory,former_reflag_host_rate,"Per-host rate of re-added rules, former attackers",A2 vs static,10,10,-0.03533333333333332,7.0,0.037109375,-0.7454545454545455,False,0.111328125,False
