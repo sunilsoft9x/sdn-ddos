@@ -661,7 +661,7 @@ def figures(st_roles, em, sm, out):
                        zip(m_sets, att_now, former_now, surge_ep)]
     panels = [("S", "Probe success"), ("other_ct", "Other benign hosts with a rule"),
               ("role_rule", "Episodes with a rule on a surge host\n(C1, all steps) / former attacker (C2)")]
-    fig, axes = plt.subplots(len(CONDS), len(panels), figsize=(7.2, 3.6), sharex=True)
+    fig, axes = plt.subplots(len(CONDS), len(panels), figsize=(7.2, 2.7), sharex=True)
     for i, cond in enumerate(CONDS):
         for j, (col, title) in enumerate(panels):
             ax = axes[i, j]
@@ -680,8 +680,8 @@ def figures(st_roles, em, sm, out):
                 ax.set_ylim(-0.05, 1.05)
             if i == 0:
                 ax.set_title(title, fontsize=8)
-            if j == 0:
-                ax.set_ylabel(COND_LABEL[cond])
+            if j == 0:   # two lines, so the row labels do not run into each other
+                ax.set_ylabel(COND_LABEL[cond].replace(": ", ":\n"))
             if i == len(CONDS) - 1:
                 ax.set_xlabel("Step (0.5 s)")
     h, lab = axes[0, 0].get_legend_handles_labels()
@@ -693,20 +693,28 @@ def figures(st_roles, em, sm, out):
         fig.savefig(out / f"fig_timeseries.{ext}")
     plt.close(fig)
 
-    params = [("service_post", "Service after event"),
-              ("other_blocked_post", "Other benign hosts\nwith a rule, per step"),
-              ("benign_delivery_other", "Benign delivery (post/pre)"),
-              (None, None)]
-    role = {"C1_surge": ("surge_block_share", "Share of post steps with\na rule on a surge host"),
-            "C2_swap": ("held_steps", "Post steps with a\nheld-over rule (of 50)")}
+    # Planned parameters only (plan Section 7); the step-22 measures are exploratory and
+    # are reported in their own table, not in this figure.
+    def worst_title(cond):
+        e = em[em.cond == cond]
+        if e.empty:
+            return "Worst window after the event"
+        ev, n = int(e.event_step.iloc[0]), int(e.n_steps.iloc[0])
+        return f"Worst window,\nsteps {ev + TRANSIENT}-{n - 1}"
+    params = {"C1_surge": [("service_post", "Service after event"),
+                           ("surge_delivery", "Surge-host delivery\n(share of 4.0 Mbps offered)"),
+                           ("benign_delivery_other", "Other benign delivery\n(post/pre)"),
+                           ("surge_block_share", "Share of post steps with\na rule on a surge host")],
+              "C2_swap": [("service_post", "Service after event"),
+                          ("worst_post", worst_title("C2_swap")),
+                          ("benign_delivery_other", "Other benign delivery\n(post/pre)"),
+                          ("stale_steps", "Post steps with a rule on\na former attacker (of 50)")]}
     # Both service panels on one honest scale (a 0.98-0.988 axis exaggerates 0.004).
     sv = sm["service_post"].dropna() if "service_post" in sm else pd.Series(dtype=float)
     s_lo = float(np.floor((sv.min() - 0.01) * 50) / 50) if len(sv) else 0.0
-    fig, axes = plt.subplots(len(CONDS), len(params), figsize=(7.2, 3.6))
+    fig, axes = plt.subplots(len(CONDS), 4, figsize=(7.2, 2.9))
     for i, cond in enumerate(CONDS):
-        for j, (col, title) in enumerate(params):
-            if col is None:
-                col, title = role[cond]
+        for j, (col, title) in enumerate(params[cond]):
             ax = axes[i, j]
             if col not in sm:
                 ax.set_visible(False)
@@ -717,7 +725,7 @@ def figures(st_roles, em, sm, out):
                     continue
                 jit = np.linspace(-0.12, 0.12, len(v)) if len(v) > 1 else np.zeros(1)
                 ax.scatter(x + jit, v, s=10, color=COLORS[arm], alpha=0.55, linewidths=0)
-                c, (lo, hi) = iqm(v), bootstrap_ci(v, 2000)
+                c, (lo, hi) = iqm(v), bootstrap_ci(v)   # default reps: same interval as summary_iqm.csv
                 if not np.isnan(lo):
                     ax.vlines(x + 0.3, lo, hi, color="#0b0b0b", lw=1)
                 ax.plot([x + 0.3], [c], marker=STYLES[arm][1], color=COLORS[arm], ms=5,
@@ -725,6 +733,8 @@ def figures(st_roles, em, sm, out):
             ax.set_xticks(range(len(ARMS)), ARMS)
             if col == "service_post":
                 ax.set_ylim(s_lo, 1.0)
+            elif col == "worst_post":
+                ax.set_ylim(-0.05, 1.05)
             ax.set_title(title, fontsize=8)
             if j == 0:
                 ax.set_ylabel(COND_LABEL[cond])
